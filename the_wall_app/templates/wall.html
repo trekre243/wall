@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>The Wall</title>
+    {%  load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-light bg-light title_bar">
+            <a class="navbar-brand">CodingDojo Wall</a>
+            <span class="navbar-text">
+                Welcome, {{ user.fname }}
+                <a href="/logout" class="log_out">Log Out</a>
+            </span>
+        </nav>
+        <!--main message posting div-->
+        <div class="row">
+            <form class="post_message_form" action="create_message" method="POST">
+            {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2>Post a Message</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea name="message" id="" rows="6"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 btn_row">
+                        <button class="btn btn-primary" type="submit">Post a message</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!--div for each message and associated comments-->
+        {% for message in messages%}
+        <div class="row">
+            <div class="col-md-12 msg_comm_area">
+                <!--div for the message of each message area-->
+                <div class="row">
+                    <div class="col-md-12 msg">
+                        <h3>{{message.user_id.fname}} {{message.user_id.lname}} - {{message.created_at | date:"F jS Y" }} {% if user.id == message.user_id.id and message.recent %}<a href="delete_message/{{ message.id }}">Delete</a>{% endif %}</h3>
+                        <p>{{ message.message }}</p>
+                    </div>
+                </div>
+                <!--div for a comment-->
+                {% for comment in message.comments.all %}
+                <div class="row">
+                    <div class="col-md-12 comm">
+                        <h4>{{ comment.user_id.fname }} {{ comment.user_id.lname }} - {{ comment.created_at | date:"M jS Y" }}</h4>
+                        <p>{{ comment.comment }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                <!--div for comment posting form-->
+                <div class="row">
+                    <div class="col-md-12">
+                        <form class='comm_form' action="post_comment" method="POST">
+                        {% csrf_token %}
+                        <input name="message_id" type="hidden" value="{{ message.id }}">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4>Post a comment</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea name="comment" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 btn_row">
+                                    <button class="btn btn-success" type="submit">Post a comment</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
